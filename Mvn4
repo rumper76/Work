@@ -1,0 +1,16 @@
+def initFile = new File(
+    project.basedir,
+    "src/test/resources/create_roles.sql"
+)
+
+def connection = postgres.createConnection("")
+try {
+    def statement = connection.createStatement()
+    try {
+        statement.execute(initFile.getText("UTF-8"))
+    } finally {
+        statement.close()
+    }
+} finally {
+    connection.close()
+}
