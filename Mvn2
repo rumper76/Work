@@ -1,0 +1,69 @@
+<plugin>
+    <groupId>org.codehaus.gmavenplus</groupId>
+    <artifactId>gmavenplus-plugin</artifactId>
+    <version>3.0.2</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>3.0.22</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>1.20.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.5</version>
+        </dependency>
+    </dependencies>
+
+    <executions>
+        <execution>
+            <id>start-postgres</id>
+            <phase>validate</phase>
+
+            <goals>
+                <goal>execute</goal>
+            </goals>
+
+            <configuration>
+                <includeClasspath>PLUGIN_ONLY</includeClasspath>
+
+                <scripts>
+                    <script><![CDATA[
+                        import org.testcontainers.containers.PostgreSQLContainer
+                        import org.testcontainers.utility.DockerImageName
+
+                        // Tutaj ustaw nazwę swojego obrazu
+                        def image = DockerImageName
+                            .parse("twoje-registry/twoj-postgres:16")
+                            .asCompatibleSubstituteFor("postgres")
+
+                        def postgres = new PostgreSQLContainer(image)
+                            .withDatabaseName("test")
+                            .withUsername("psql")
+                            .withPassword("psql")
+
+                        // Port hosta : port wewnątrz kontenera
+                        postgres.setPortBindings(["5432:5432"])
+
+                        postgres.start()
+
+                        log.info("PostgreSQL gotowy: " + postgres.getJdbcUrl())
+
+                        // Zatrzymanie kontenera przy zakończeniu Mavena
+                        Runtime.getRuntime().addShutdownHook(
+                            new Thread({ postgres.stop() } as Runnable)
+                        )
+                    ]]></script>
+                </scripts>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
