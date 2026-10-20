@@ -1,0 +1,20 @@
+// Konfiguracja wymagana przez Twój obraz Bitnami
+postgres.setCommand("/opt/bitnami/scripts/postgresql/run.sh")
+
+postgres.addEnv("POSTGRESQL_DATABASE", postgres.getDatabaseName())
+postgres.addEnv("POSTGRESQL_USERNAME", postgres.getUsername())
+postgres.addEnv("POSTGRESQL_PASSWORD", postgres.getPassword())
+postgres.addEnv("POSTGRESQL_POSTGRES_PASSWORD", postgres.getPassword())
+
+postgres.setWaitStrategy(
+    org.testcontainers.containers.wait.strategy.Wait.forListeningPort()
+)
+
+postgres.withLogConsumer { frame ->
+    print(frame.getUtf8String())
+}
+
+// Stały port
+postgres.setPortBindings(["5432:5432"])
+
+postgres.start()
